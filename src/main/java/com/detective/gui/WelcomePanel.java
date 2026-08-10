@@ -13,7 +13,11 @@ public class WelcomePanel extends JPanel {
 
         JButton startButton = new JButton("Start Investigation");
         startButton.addActionListener(e -> {
-            System.out.println("Start button clicked!");
+            String name = JOptionPane.showInputDialog(frame, "Enter your detective name:");
+            if (name == null || name.trim().isEmpty()) {
+                name = "Detective";
+            }
+            frame.startGame(name);
         });
 
         JPanel bottomPanel = new JPanel();
