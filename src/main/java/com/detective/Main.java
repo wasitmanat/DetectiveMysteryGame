@@ -1,7 +1,14 @@
 package com.detective;
 
+import com.detective.gui.MainFrame;
+
+import javax.swing.*;
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Detective Mystery Game - Project Setup Successful!");
+        SwingUtilities.invokeLater(() -> {
+            MainFrame frame = new MainFrame();
+            frame.setVisible(true);
+        });
     }
 }
