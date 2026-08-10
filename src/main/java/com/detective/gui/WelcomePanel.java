@@ -17,7 +17,7 @@ public class WelcomePanel extends JPanel {
             if (name == null || name.trim().isEmpty()) {
                 name = "Detective";
             }
-            frame.startGame(name);
+            frame.showBriefing(name);
         });
 
         JPanel bottomPanel = new JPanel();

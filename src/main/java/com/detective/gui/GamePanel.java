@@ -8,6 +8,7 @@ import com.detective.model.Evidence;
 import com.detective.model.Room;
 import com.detective.model.Suspect;
 import com.detective.observer.GameObserver;
+import com.detective.util.RandomEventUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -123,6 +124,11 @@ public class GamePanel extends JPanel implements GameObserver {
         Room room = GameManager.getInstance().getRooms().get(index);
         roomDescriptionLabel.setText(room.getDescription());
 
+        String event = RandomEventUtil.maybeTriggerEvent();
+        if (event != null) {
+            GameManager.getInstance().addLog("[Event] " + event);
+        }
+
         if (room.getEvidenceList().isEmpty()) {
             evidenceButtonPanel.add(new JLabel("  Nothing here anymore."));
         }
@@ -145,6 +151,7 @@ public class GamePanel extends JPanel implements GameObserver {
         Command command = new CollectEvidenceCommand(evidence);
         command.execute();
         room.getEvidenceList().remove(evidence);
+        JOptionPane.showMessageDialog(this, "Evidence collected:\n\n" + evidence.getName() + "\n" + evidence.getDescription(), "New Clue", JOptionPane.INFORMATION_MESSAGE);
         refreshRoom();
     }
 
@@ -157,13 +164,17 @@ public class GamePanel extends JPanel implements GameObserver {
         );
         if (confirm != JOptionPane.YES_OPTION) return;
 
+        String actualCulprit = suspect.getName();
+        for (Suspect s : GameManager.getInstance().getSuspects()) {
+            if (s.isGuilty()) {
+                actualCulprit = s.getName();
+                break;
+            }
+        }
+
         AccuseCommand command = new AccuseCommand(suspect);
         command.execute();
-        if (command.isCorrect()) {
-            frame.showScreen("win");
-        } else {
-            frame.showScreen("lose");
-        }
+        frame.showResult(command.isCorrect(), actualCulprit);
     }
 
     @Override

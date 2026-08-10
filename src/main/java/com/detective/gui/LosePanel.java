@@ -4,14 +4,17 @@ import javax.swing.*;
 import java.awt.*;
 
 public class LosePanel extends JPanel {
-    public LosePanel(MainFrame frame) {
+    public LosePanel(MainFrame frame, String culprit) {
         setLayout(new BorderLayout());
-        JLabel label = new JLabel("Wrong suspect! The real culprit got away.", SwingConstants.CENTER);
-        label.setFont(new Font("Serif", Font.BOLD, 24));
+        JLabel label = new JLabel(
+                "<html><center>Wrong Suspect!<br><br>The real killer was " + culprit + ".<br>They got away this time...</center></html>",
+                SwingConstants.CENTER
+        );
+        label.setFont(new Font("Serif", Font.BOLD, 22));
         add(label, BorderLayout.CENTER);
 
-        JButton restartButton = new JButton("Restart Game");
-        restartButton.addActionListener(e -> frame.restartGame());
+        JButton restartButton = new JButton("Try a New Case");
+        restartButton.addActionListener(e -> frame.showScreen("welcome"));
         JPanel bottom = new JPanel();
         bottom.add(restartButton);
         add(bottom, BorderLayout.SOUTH);
