@@ -3,6 +3,7 @@ package com.detective.gui;
 import com.detective.command.AccuseCommand;
 import com.detective.command.CollectEvidenceCommand;
 import com.detective.command.Command;
+import com.detective.command.InterrogateCommand;
 import com.detective.manager.GameManager;
 import com.detective.model.Evidence;
 import com.detective.model.Room;
@@ -30,6 +31,7 @@ public class GamePanel extends JPanel implements GameObserver {
         GameManager.getInstance().addObserver(this);
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setBackground(new Color(245, 240, 230));
 
         add(buildTopPanel(), BorderLayout.NORTH);
         add(buildCenterPanel(), BorderLayout.CENTER);
@@ -42,7 +44,7 @@ public class GamePanel extends JPanel implements GameObserver {
 
         instructionsLabel = new JLabel(
                 "<html><b>How to play:</b> Pick a room, click evidence to collect it. "
-                        + "Check suspect alibis, then click a suspect's name when you're ready to accuse. "
+                        + "Interrogate suspects for hints, then accuse when you're ready. "
                         + "Only one suspect is guilty!</html>"
         );
         instructionsLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 8, 5));
@@ -81,16 +83,33 @@ public class GamePanel extends JPanel implements GameObserver {
 
         suspectButtonPanel = new JPanel();
         suspectButtonPanel.setLayout(new BoxLayout(suspectButtonPanel, BoxLayout.Y_AXIS));
-        suspectButtonPanel.setBorder(BorderFactory.createTitledBorder("Suspects (click name = accuse)"));
+        suspectButtonPanel.setBorder(BorderFactory.createTitledBorder("Suspects"));
+
         for (Suspect suspect : GameManager.getInstance().getSuspects()) {
             JPanel row = new JPanel();
             row.setLayout(new BoxLayout(row, BoxLayout.Y_AXIS));
-            JButton btn = new JButton("Accuse: " + suspect.getName());
-            btn.addActionListener(e -> handleAccuse(suspect));
+            row.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+
+            JLabel nameLabel = new JLabel(suspect.getName());
+            nameLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
+
             JLabel alibi = new JLabel("<html><i>Alibi: " + suspect.getAlibi() + "</i></html>");
-            alibi.setBorder(BorderFactory.createEmptyBorder(2, 5, 10, 5));
-            row.add(btn);
+            alibi.setBorder(BorderFactory.createEmptyBorder(2, 0, 5, 0));
+
+            JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+            JButton interrogateBtn = new JButton("Interrogate");
+            interrogateBtn.addActionListener(e -> handleInterrogate(suspect));
+
+            JButton accuseBtn = new JButton("Accuse");
+            accuseBtn.setForeground(new Color(150, 0, 0));
+            accuseBtn.addActionListener(e -> handleAccuse(suspect));
+
+            buttonRow.add(interrogateBtn);
+            buttonRow.add(accuseBtn);
+
+            row.add(nameLabel);
             row.add(alibi);
+            row.add(buttonRow);
             suspectButtonPanel.add(row);
         }
 
@@ -151,8 +170,24 @@ public class GamePanel extends JPanel implements GameObserver {
         Command command = new CollectEvidenceCommand(evidence);
         command.execute();
         room.getEvidenceList().remove(evidence);
-        JOptionPane.showMessageDialog(this, "Evidence collected:\n\n" + evidence.getName() + "\n" + evidence.getDescription(), "New Clue", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(
+                this,
+                "Evidence collected:\n\n" + evidence.getName() + "\n" + evidence.getDescription(),
+                "New Clue",
+                JOptionPane.INFORMATION_MESSAGE
+        );
         refreshRoom();
+    }
+
+    private void handleInterrogate(Suspect suspect) {
+        InterrogateCommand command = new InterrogateCommand(suspect);
+        command.execute();
+        JOptionPane.showMessageDialog(
+                this,
+                "You question " + suspect.getName() + " about their alibi.\n\n" + command.getReaction(),
+                "Interrogation",
+                JOptionPane.PLAIN_MESSAGE
+        );
     }
 
     private void handleAccuse(Suspect suspect) {
