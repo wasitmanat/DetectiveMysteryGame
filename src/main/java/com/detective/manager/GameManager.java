@@ -23,6 +23,8 @@ public class GameManager {
     private boolean gameOver;
     private int currentLevel;
     private GameState currentState = new InvestigatingState();
+    private String currentHint;
+    private boolean hintUsedThisLevel;
 
     private GameManager() {
         rooms = new ArrayList<>();
@@ -127,5 +129,25 @@ public class GameManager {
         for (GameObserver observer : observers) {
             observer.onGameUpdate();
         }
+    }
+
+    public void setHint(String hint) {
+        this.currentHint = hint;
+        this.hintUsedThisLevel = false;
+    }
+
+    public String getHint() {
+        return currentHint;
+    }
+
+    public boolean isHintUsedThisLevel() {
+        return hintUsedThisLevel;
+    }
+
+    public void useHint() {
+        hintUsedThisLevel = true;
+        player.addScore(-15);
+        addLog("Used a hint (-15 points)");
+        notifyObservers();
     }
 }

@@ -17,7 +17,8 @@ public class MainFrame extends JFrame {
 
     public MainFrame() {
         setTitle("Detective Mystery Game");
-        setSize(800, 600);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setMinimumSize(new Dimension(900, 650));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -55,27 +56,23 @@ public class MainFrame extends JFrame {
             );
             if (choice == JOptionPane.YES_OPTION) {
                 GameManager.getInstance().loadExistingProgress(playerName, saved[0], saved[1]);
-                startLevel(GameManager.getInstance().getCurrentLevel());
+                showBriefing(playerName, saved[0]);
                 return;
             } else {
                 SaveManager.deleteSave(playerName);
             }
         }
         GameManager.getInstance().startNewGame(playerName);
-        showBriefing(playerName);
+        showBriefing(playerName, 1);
     }
 
-    public void showBriefing(String playerName) {
+    public void showBriefing(String playerName, int level) {
         if (briefingPanel != null) {
             container.remove(briefingPanel);
         }
-        briefingPanel = new BriefingPanel(this, playerName);
+        briefingPanel = new BriefingPanel(this, playerName, level);
         container.add(briefingPanel, "briefing");
         showScreen("briefing");
-    }
-
-    public void launchGame(String playerName) {
-        startLevel(1);
     }
 
     public void startLevel(int level) {
@@ -124,11 +121,14 @@ public class MainFrame extends JFrame {
     }
 
     public void goToNextLevel() {
+        String playerName = GameManager.getInstance().getPlayer().getName();
         int nextLevel = GameManager.getInstance().getCurrentLevel() + 1;
-        startLevel(nextLevel);
+        showBriefing(playerName, nextLevel);
     }
 
     public void restartGame() {
-        startLevel(1);
+        String playerName = GameManager.getInstance().getPlayer() != null
+                ? GameManager.getInstance().getPlayer().getName() : "Detective";
+        showBriefing(playerName, 1);
     }
 }
