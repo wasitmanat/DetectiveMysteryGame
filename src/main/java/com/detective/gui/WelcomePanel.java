@@ -16,16 +16,12 @@ public class WelcomePanel extends JPanel {
         title.setFont(new Font("Serif", Font.BOLD, 40));
         title.setForeground(Color.WHITE);
 
-        JLabel subtitle = new JLabel("A case awaits. Do you dare solve it?");
+        JLabel subtitle = new JLabel("Three cases. One detective. Can you solve them all?");
         subtitle.setFont(new Font("Serif", Font.ITALIC, 16));
         subtitle.setForeground(new Color(200, 200, 200));
 
         JButton startButton = UITheme.styledButton("Start Investigation");
-        startButton.addActionListener(e -> {
-            String name = JOptionPane.showInputDialog(frame, "Enter your detective name:");
-            if (name == null || name.trim().isEmpty()) name = "Detective";
-            frame.showBriefing(name);
-        });
+        startButton.addActionListener(e -> frame.showProfile());
 
         JPanel textPanel = new JPanel();
         textPanel.setOpaque(false);

@@ -21,6 +21,8 @@ public class GameManager {
     private List<String> investigationLog;
     private List<GameObserver> observers;
     private boolean gameOver;
+    private int currentLevel;
+    private GameState currentState = new InvestigatingState();
 
     private GameManager() {
         rooms = new ArrayList<>();
@@ -29,6 +31,7 @@ public class GameManager {
         investigationLog = new ArrayList<>();
         observers = new ArrayList<>();
         gameOver = false;
+        currentLevel = 1;
     }
 
     public static GameManager getInstance() {
@@ -43,8 +46,28 @@ public class GameManager {
         this.collectedEvidence.clear();
         this.investigationLog.clear();
         this.gameOver = false;
+        this.currentLevel = 1;
         addLog("Game started for detective " + playerName);
         notifyObservers();
+    }
+
+    public void loadExistingProgress(String playerName, int level, int score) {
+        this.player = new Player(playerName);
+        this.player.addScore(score);
+        this.collectedEvidence.clear();
+        this.investigationLog.clear();
+        this.gameOver = false;
+        this.currentLevel = level;
+        addLog("Welcome back, Detective " + playerName + ". Resuming Level " + level + ".");
+        notifyObservers();
+    }
+
+    public int getCurrentLevel() {
+        return currentLevel;
+    }
+
+    public void setCurrentLevel(int level) {
+        this.currentLevel = level;
     }
 
     public Player getPlayer() {
@@ -87,6 +110,15 @@ public class GameManager {
         notifyObservers();
     }
 
+    public GameState getCurrentState() {
+        return currentState;
+    }
+
+    public void setCurrentState(GameState state) {
+        this.currentState = state;
+        notifyObservers();
+    }
+
     public void addObserver(GameObserver observer) {
         observers.add(observer);
     }
@@ -95,16 +127,5 @@ public class GameManager {
         for (GameObserver observer : observers) {
             observer.onGameUpdate();
         }
-    }
-
-    private GameState currentState = new InvestigatingState();
-
-    public GameState getCurrentState() {
-        return currentState;
-    }
-
-    public void setCurrentState(GameState state) {
-        this.currentState = state;
-        notifyObservers();
     }
 }

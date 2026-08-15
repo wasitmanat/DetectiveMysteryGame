@@ -6,30 +6,44 @@ import javax.swing.*;
 import java.awt.*;
 
 public class WinPanel extends JPanel {
-    public WinPanel(MainFrame frame, String culprit) {
+    public WinPanel(MainFrame frame, String culprit, int levelJustWon, boolean hasNextLevel) {
         setLayout(new BorderLayout());
 
         JPanel background = UITheme.gradientPanel(new Color(20, 40, 25), new Color(15, 15, 20));
         background.setLayout(new GridBagLayout());
 
-        JLabel label = new JLabel(
-                "<html><center>CASE SOLVED<br><br>" + culprit + " was the killer.<br>Justice has been served.</center></html>",
-                SwingConstants.CENTER
-        );
-        label.setFont(new Font("Serif", Font.BOLD, 24));
-        label.setForeground(Color.WHITE);
+        String message;
+        if (hasNextLevel) {
+            message = "<html><center>LEVEL " + levelJustWon + " SOLVED<br><br>"
+                    + culprit + " was the killer.<br>Your progress has been saved.<br><br>"
+                    + "Ready for Level " + (levelJustWon + 1) + "?</center></html>";
+        } else {
+            message = "<html><center>CASE CLOSED - CAMPAIGN COMPLETE<br><br>"
+                    + culprit + " was the killer.<br>You solved all 3 cases, Detective.</center></html>";
+        }
 
-        JButton restartButton = UITheme.styledButton("Start New Case");
-        restartButton.addActionListener(e -> frame.showScreen("welcome"));
+        JLabel label = new JLabel(message, SwingConstants.CENTER);
+        label.setFont(new Font("Serif", Font.BOLD, 22));
+        label.setForeground(Color.WHITE);
 
         JPanel textPanel = new JPanel();
         textPanel.setOpaque(false);
         textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
-        restartButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         textPanel.add(label);
         textPanel.add(Box.createVerticalStrut(30));
-        textPanel.add(restartButton);
+
+        if (hasNextLevel) {
+            JButton nextButton = UITheme.styledButton("Continue to Level " + (levelJustWon + 1));
+            nextButton.addActionListener(e -> frame.goToNextLevel());
+            nextButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+            textPanel.add(nextButton);
+        } else {
+            JButton restartButton = UITheme.styledButton("Start New Campaign");
+            restartButton.addActionListener(e -> frame.showScreen("welcome"));
+            restartButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+            textPanel.add(restartButton);
+        }
 
         background.add(textPanel);
         add(background, BorderLayout.CENTER);
