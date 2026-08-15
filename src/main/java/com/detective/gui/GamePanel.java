@@ -27,8 +27,11 @@ public class GamePanel extends JPanel implements GameObserver {
     private JLabel inventoryLabel;
     private JLabel scoreLabel;
     private JLabel levelLabel;
+    private JLabel timerLabel;
     private JProgressBar evidenceProgress;
     private int totalEvidenceThisCase;
+    private Timer countdownTimer;
+    private int secondsRemaining = 180;
 
     private static final Color[] AVATAR_COLORS = {
             new Color(178, 58, 58), new Color(58, 110, 178), new Color(90, 140, 90),
@@ -47,6 +50,8 @@ public class GamePanel extends JPanel implements GameObserver {
         add(buildHeaderPanel(), BorderLayout.NORTH);
         add(buildCenterPanel(), BorderLayout.CENTER);
         add(buildBottomPanel(), BorderLayout.SOUTH);
+
+        startTimer();
     }
 
     private int countTotalEvidence() {
@@ -55,6 +60,46 @@ public class GamePanel extends JPanel implements GameObserver {
             total += r.getEvidenceList().size();
         }
         return total;
+    }
+
+    private void startTimer() {
+        secondsRemaining = 180;
+        countdownTimer = new Timer(1000, e -> {
+            secondsRemaining--;
+            updateTimerLabel();
+            if (secondsRemaining <= 0) {
+                countdownTimer.stop();
+                handleTimeUp();
+            }
+        });
+        countdownTimer.start();
+    }
+
+    private void updateTimerLabel() {
+        int minutes = secondsRemaining / 60;
+        int seconds = secondsRemaining % 60;
+        timerLabel.setText(String.format("Time: %02d:%02d", minutes, seconds));
+        if (secondsRemaining <= 30) {
+            timerLabel.setForeground(new Color(220, 60, 60));
+        }
+    }
+
+    private void handleTimeUp() {
+        JOptionPane.showMessageDialog(this, "Time's up! The trail has gone cold.", "Time Expired", JOptionPane.WARNING_MESSAGE);
+        String actualCulprit = "Unknown";
+        for (Suspect s : GameManager.getInstance().getSuspects()) {
+            if (s.isGuilty()) {
+                actualCulprit = s.getName();
+                break;
+            }
+        }
+        frame.showResult(false, actualCulprit);
+    }
+
+    private void stopTimer() {
+        if (countdownTimer != null) {
+            countdownTimer.stop();
+        }
     }
 
     private JPanel buildHeaderPanel() {
@@ -66,9 +111,19 @@ public class GamePanel extends JPanel implements GameObserver {
         levelLabel.setFont(new Font("Serif", Font.BOLD, 18));
         levelLabel.setForeground(Color.WHITE);
 
+        JPanel rightInfo = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 0));
+        rightInfo.setOpaque(false);
+
+        timerLabel = new JLabel("Time: 03:00");
+        timerLabel.setFont(new Font("Monospaced", Font.BOLD, 16));
+        timerLabel.setForeground(new Color(255, 255, 255));
+
         scoreLabel = new JLabel("Score: 0");
         scoreLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         scoreLabel.setForeground(new Color(255, 210, 120));
+
+        rightInfo.add(timerLabel);
+        rightInfo.add(scoreLabel);
 
         JPanel roomRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         roomRow.setOpaque(false);
@@ -80,13 +135,22 @@ public class GamePanel extends JPanel implements GameObserver {
         }
         roomSelector.setFont(new Font("SansSerif", Font.PLAIN, 13));
         roomSelector.addActionListener(e -> refreshRoom());
+
+        JButton hintButton = new JButton("Use Hint (-15 pts)");
+        hintButton.setBackground(new Color(200, 160, 60));
+        hintButton.setForeground(Color.WHITE);
+        hintButton.setFocusPainted(false);
+        hintButton.addActionListener(e -> handleHint());
+
         roomRow.add(roomIcon);
         roomRow.add(roomSelector);
+        roomRow.add(Box.createHorizontalStrut(10));
+        roomRow.add(hintButton);
 
         JPanel topRow = new JPanel(new BorderLayout());
         topRow.setOpaque(false);
         topRow.add(levelLabel, BorderLayout.WEST);
-        topRow.add(scoreLabel, BorderLayout.EAST);
+        topRow.add(rightInfo, BorderLayout.EAST);
 
         JPanel midRow = new JPanel(new BorderLayout());
         midRow.setOpaque(false);
@@ -113,6 +177,17 @@ public class GamePanel extends JPanel implements GameObserver {
         header.add(topRow, BorderLayout.NORTH);
         header.add(midRow, BorderLayout.SOUTH);
         return header;
+    }
+
+    private void handleHint() {
+        if (GameManager.getInstance().isHintUsedThisLevel()) {
+            JOptionPane.showMessageDialog(this, "You already used your hint for this case:\n\n" + GameManager.getInstance().getHint(), "Hint", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        int confirm = JOptionPane.showConfirmDialog(this, "Use a hint for -15 points?", "Use Hint", JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) return;
+        GameManager.getInstance().useHint();
+        JOptionPane.showMessageDialog(this, GameManager.getInstance().getHint(), "Hint", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private JPanel buildCenterPanel() {
@@ -351,6 +426,8 @@ public class GamePanel extends JPanel implements GameObserver {
                 JOptionPane.YES_NO_OPTION
         );
         if (confirm != JOptionPane.YES_OPTION) return;
+
+        stopTimer();
 
         String actualCulprit = suspect.getName();
         for (Suspect s : GameManager.getInstance().getSuspects()) {

@@ -52,6 +52,8 @@ public class GameDataInitializer {
         gm.getSuspects().add(SuspectFactory.createSuspect("Mr. Black", "Says he was at home.", guiltyIndex == 0));
         gm.getSuspects().add(SuspectFactory.createSuspect("Ms. White", "Says she was at work.", guiltyIndex == 1));
         gm.getSuspects().add(SuspectFactory.createSuspect("Dr. Green", "Says he was traveling.", guiltyIndex == 2));
+
+        gm.setHint("The killer's initial matches something scratched into the knife handle.");
     }
 
     private static void buildOfficeCase() {
@@ -86,6 +88,8 @@ public class GameDataInitializer {
         gm.getSuspects().add(SuspectFactory.createSuspect("Mr. Turner", "Says he left before 9 PM.", guiltyIndex == 0));
         gm.getSuspects().add(SuspectFactory.createSuspect("Ms. Reyes", "Says she was on a call all night.", guiltyIndex == 1));
         gm.getSuspects().add(SuspectFactory.createSuspect("Mr. Osei", "Says he was fixing bugs in the server room.", guiltyIndex == 2));
+
+        gm.setHint("Check the name tag left near the spilled coffee in the Boardroom.");
     }
 
     private static void buildTheaterCase() {
@@ -120,5 +124,7 @@ public class GameDataInitializer {
         gm.getSuspects().add(SuspectFactory.createSuspect("Madame Rosa", "Says she was rehearsing alone.", guiltyIndex == 0));
         gm.getSuspects().add(SuspectFactory.createSuspect("Victor Lang", "Says he was adjusting the lights.", guiltyIndex == 1));
         gm.getSuspects().add(SuspectFactory.createSuspect("Elise Moreau", "Says she was signing autographs.", guiltyIndex == 2));
+
+        gm.setHint("The torn script page on the Stage was signed by someone in a hurry.");
     }
 }
