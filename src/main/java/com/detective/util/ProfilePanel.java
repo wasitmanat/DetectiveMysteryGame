@@ -1,11 +1,14 @@
 package com.detective.gui;
 
+import com.detective.util.SaveManager;
 import com.detective.util.UITheme;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class ProfilePanel extends JPanel {
+    private JLabel statusLabel;
+
     public ProfilePanel(MainFrame frame) {
         setLayout(new BorderLayout());
 
@@ -15,6 +18,10 @@ public class ProfilePanel extends JPanel {
         JPanel card = new JPanel();
         card.setOpaque(false);
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+
+        JLabel icon = new JLabel("🕵");
+        icon.setFont(new Font("SansSerif", Font.PLAIN, 48));
+        icon.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel title = new JLabel("Detective Profile");
         title.setFont(new Font("Serif", Font.BOLD, 28));
@@ -31,6 +38,21 @@ public class ProfilePanel extends JPanel {
         nameField.setAlignmentX(Component.CENTER_ALIGNMENT);
         nameField.setFont(new Font("SansSerif", Font.PLAIN, 14));
 
+        statusLabel = new JLabel(" ");
+        statusLabel.setFont(new Font("SansSerif", Font.ITALIC, 12));
+        statusLabel.setForeground(new Color(255, 210, 120));
+        statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        nameField.addCaretListener(e -> {
+            String name = nameField.getText().trim();
+            if (!name.isEmpty() && SaveManager.hasSave(name)) {
+                int[] saved = SaveManager.loadProgress(name);
+                statusLabel.setText("📁 Saved case found: Level " + saved[0] + " | Score: " + saved[1]);
+            } else {
+                statusLabel.setText(" ");
+            }
+        });
+
         JButton continueButton = UITheme.styledButton("Continue");
         continueButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         continueButton.addActionListener(e -> {
@@ -44,12 +66,16 @@ public class ProfilePanel extends JPanel {
 
         nameField.addActionListener(e -> continueButton.doClick());
 
+        card.add(icon);
+        card.add(Box.createVerticalStrut(5));
         card.add(title);
         card.add(Box.createVerticalStrut(8));
         card.add(subtitle);
         card.add(Box.createVerticalStrut(20));
         card.add(nameField);
-        card.add(Box.createVerticalStrut(20));
+        card.add(Box.createVerticalStrut(8));
+        card.add(statusLabel);
+        card.add(Box.createVerticalStrut(15));
         card.add(continueButton);
 
         background.add(card);

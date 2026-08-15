@@ -26,6 +26,7 @@ public class GamePanel extends JPanel implements GameObserver {
     private JLabel inventoryLabel;
     private JLabel scoreLabel;
     private JLabel instructionsLabel;
+    private JLabel levelLabel;
 
     public GamePanel(MainFrame frame) {
         this.frame = frame;
@@ -44,6 +45,11 @@ public class GamePanel extends JPanel implements GameObserver {
         top.setLayout(new BoxLayout(top, BoxLayout.Y_AXIS));
         top.setOpaque(false);
 
+        levelLabel = new JLabel("🔎 Level " + GameManager.getInstance().getCurrentLevel() + " of 3");
+        levelLabel.setFont(new Font("SansSerif", Font.BOLD, 15));
+        levelLabel.setForeground(new Color(120, 30, 30));
+        levelLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
+
         instructionsLabel = new JLabel(
                 "<html><b>How to play:</b> Pick a room, click evidence to collect it. "
                         + "Interrogate suspects for hints, then accuse when you're ready. "
@@ -57,11 +63,11 @@ public class GamePanel extends JPanel implements GameObserver {
         roomRow.setOpaque(false);
         roomSelector = new JComboBox<>();
         for (Room room : GameManager.getInstance().getRooms()) {
-            roomSelector.addItem(room.getName());
+            roomSelector.addItem("🚪 " + room.getName());
         }
         roomSelector.addActionListener(e -> refreshRoom());
 
-        scoreLabel = new JLabel("Score: 0");
+        scoreLabel = new JLabel("⭐ Score: 0");
         scoreLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
         scoreLabel.setForeground(new Color(120, 30, 30));
 
@@ -74,6 +80,7 @@ public class GamePanel extends JPanel implements GameObserver {
         roomDescriptionLabel.setFont(new Font("SansSerif", Font.ITALIC, 13));
         roomDescriptionLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
 
+        top.add(levelLabel);
         top.add(instructionsLabel);
         top.add(roomRow);
         top.add(roomDescriptionLabel);
@@ -87,14 +94,14 @@ public class GamePanel extends JPanel implements GameObserver {
         evidenceButtonPanel = new JPanel();
         evidenceButtonPanel.setLayout(new BoxLayout(evidenceButtonPanel, BoxLayout.Y_AXIS));
         evidenceButtonPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(150, 120, 90), 1), "Evidence in Room"));
+                BorderFactory.createLineBorder(new Color(150, 120, 90), 1), "🔍 Evidence in Room"));
         evidenceButtonPanel.setBackground(new Color(250, 246, 235));
         evidenceButtonPanel.setOpaque(true);
 
         suspectButtonPanel = new JPanel();
         suspectButtonPanel.setLayout(new BoxLayout(suspectButtonPanel, BoxLayout.Y_AXIS));
         suspectButtonPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(150, 120, 90), 1), "Suspects"));
+                BorderFactory.createLineBorder(new Color(150, 120, 90), 1), "👤 Suspects"));
         suspectButtonPanel.setBackground(new Color(250, 246, 235));
         suspectButtonPanel.setOpaque(true);
 
@@ -104,7 +111,7 @@ public class GamePanel extends JPanel implements GameObserver {
             row.setOpaque(false);
             row.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 
-            JLabel nameLabel = new JLabel(suspect.getName());
+            JLabel nameLabel = new JLabel("🙋 " + suspect.getName());
             nameLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
 
             JLabel alibi = new JLabel("<html><i>Alibi: " + suspect.getAlibi() + "</i></html>");
@@ -112,10 +119,10 @@ public class GamePanel extends JPanel implements GameObserver {
 
             JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
             buttonRow.setOpaque(false);
-            JButton interrogateBtn = UITheme.styledButton("Interrogate");
+            JButton interrogateBtn = UITheme.styledButton("💬 Interrogate");
             interrogateBtn.addActionListener(e -> handleInterrogate(suspect));
 
-            JButton accuseBtn = new JButton("Accuse");
+            JButton accuseBtn = new JButton("⚖ Accuse");
             accuseBtn.setForeground(new Color(150, 0, 0));
             accuseBtn.addActionListener(e -> handleAccuse(suspect));
 
@@ -130,7 +137,7 @@ public class GamePanel extends JPanel implements GameObserver {
 
         JPanel inventoryPanel = new JPanel(new BorderLayout());
         inventoryPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(150, 120, 90), 1), "Inventory"));
+                BorderFactory.createLineBorder(new Color(150, 120, 90), 1), "🎒 Inventory"));
         inventoryPanel.setBackground(new Color(250, 246, 235));
         inventoryPanel.setOpaque(true);
         inventoryLabel = new JLabel("<html>(empty)</html>");
@@ -153,7 +160,7 @@ public class GamePanel extends JPanel implements GameObserver {
         logArea.setBackground(new Color(250, 246, 235));
         bottom.add(new JScrollPane(logArea), BorderLayout.CENTER);
         bottom.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(150, 120, 90), 1), "Investigation Log"));
+                BorderFactory.createLineBorder(new Color(150, 120, 90), 1), "📜 Investigation Log"));
         return bottom;
     }
 
@@ -176,7 +183,7 @@ public class GamePanel extends JPanel implements GameObserver {
             JPanel row = new JPanel();
             row.setLayout(new BoxLayout(row, BoxLayout.Y_AXIS));
             row.setOpaque(false);
-            JButton btn = new JButton("Collect: " + evidence.getName());
+            JButton btn = new JButton("🧾 Collect: " + evidence.getName());
             btn.addActionListener(e -> handleCollect(evidence, room));
             JLabel desc = new JLabel("<html><i>" + evidence.getDescription() + "</i></html>");
             desc.setBorder(BorderFactory.createEmptyBorder(2, 5, 10, 5));
@@ -194,7 +201,7 @@ public class GamePanel extends JPanel implements GameObserver {
         room.getEvidenceList().remove(evidence);
         JOptionPane.showMessageDialog(
                 this,
-                "Evidence collected:\n\n" + evidence.getName() + "\n" + evidence.getDescription(),
+                "🧾 Evidence collected:\n\n" + evidence.getName() + "\n" + evidence.getDescription(),
                 "New Clue",
                 JOptionPane.INFORMATION_MESSAGE
         );
@@ -206,7 +213,7 @@ public class GamePanel extends JPanel implements GameObserver {
         command.execute();
         JOptionPane.showMessageDialog(
                 this,
-                "You question " + suspect.getName() + " about their alibi.\n\n" + command.getReaction(),
+                "💬 You question " + suspect.getName() + " about their alibi.\n\n" + command.getReaction(),
                 "Interrogation",
                 JOptionPane.PLAIN_MESSAGE
         );
@@ -215,7 +222,7 @@ public class GamePanel extends JPanel implements GameObserver {
     private void handleAccuse(Suspect suspect) {
         int confirm = JOptionPane.showConfirmDialog(
                 this,
-                "Accuse " + suspect.getName() + "? This ends the investigation.",
+                "⚖ Accuse " + suspect.getName() + "? This ends the investigation.",
                 "Confirm Accusation",
                 JOptionPane.YES_NO_OPTION
         );
@@ -239,12 +246,12 @@ public class GamePanel extends JPanel implements GameObserver {
         List<Evidence> collected = GameManager.getInstance().getCollectedEvidence();
         StringBuilder sb = new StringBuilder("<html>");
         for (Evidence e : collected) {
-            sb.append("&bull; ").append(e.getName()).append("<br>");
+            sb.append("🧾 ").append(e.getName()).append("<br>");
         }
         sb.append("</html>");
         inventoryLabel.setText(collected.isEmpty() ? "<html>(empty)</html>" : sb.toString());
 
-        scoreLabel.setText("Score: " + GameManager.getInstance().getPlayer().getScore());
+        scoreLabel.setText("⭐ Score: " + GameManager.getInstance().getPlayer().getScore());
 
         logArea.setText(String.join("\n", GameManager.getInstance().getInvestigationLog()));
         logArea.setCaretPosition(logArea.getDocument().getLength());
