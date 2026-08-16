@@ -36,5 +36,8 @@ public class InterrogateCommand implements Command {
         String[] pool = suspect.isGuilty() ? GUILTY_RESPONSES : INNOCENT_RESPONSES;
         reaction = pool[random.nextInt(pool.length)];
         GameManager.getInstance().addLog("Interrogated " + suspect.getName() + ": " + reaction);
+
+        int suspicionGain = suspect.isGuilty() ? 25 : 10;
+        GameManager.getInstance().addSuspicion(suspect.getName(), suspicionGain);
     }
 }

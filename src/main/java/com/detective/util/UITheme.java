@@ -9,7 +9,7 @@ public class UITheme {
     public static final Color ACCENT = new Color(178, 34, 34);
     public static final Color TEXT_LIGHT = new Color(230, 230, 230);
     public static final Font TITLE_FONT = new Font("Serif", Font.BOLD, 30);
-    public static final Font BODY_FONT = new Font("SansSerif", Font.PLAIN, 14);
+    public static final Font BODY_FONT = new Font("SansSerif", Font.PLAIN, 21);
 
     public static JButton styledButton(String text) {
         JButton btn = new JButton(text);

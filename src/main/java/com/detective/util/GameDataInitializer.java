@@ -12,12 +12,23 @@ public class GameDataInitializer {
     private static final Random random = new Random();
 
     public static void initializeLevel(int level) {
+        GameManager.getInstance().resetSuspicion();
         switch (level) {
             case 1: buildMansionCase(); break;
             case 2: buildOfficeCase(); break;
             case 3: buildTheaterCase(); break;
             default: buildMansionCase(); break;
         }
+    }
+
+    private static int pickGuiltyIndex(int level, String[] names) {
+        String lastCulprit = GameManager.getInstance().getLastCulprit(level);
+        int guiltyIndex;
+        do {
+            guiltyIndex = random.nextInt(names.length);
+        } while (names.length > 1 && names[guiltyIndex].equals(lastCulprit));
+        GameManager.getInstance().setLastCulprit(level, names[guiltyIndex]);
+        return guiltyIndex;
     }
 
     private static void buildMansionCase() {
@@ -30,8 +41,8 @@ public class GameDataInitializer {
         Room kitchen = RoomFactory.createRoom("Kitchen", "Smells like burnt toast.");
         Room study = RoomFactory.createRoom("Study", "A locked drawer sits on the desk.");
 
-        int guiltyIndex = random.nextInt(3);
         String[] names = {"Mr. Black", "Ms. White", "Dr. Green"};
+        int guiltyIndex = pickGuiltyIndex(1, names);
         String culprit = names[guiltyIndex];
 
         library.addEvidence(EvidenceFactory.createEvidence("Bloody Knife",
@@ -66,8 +77,8 @@ public class GameDataInitializer {
         Room serverRoom = RoomFactory.createRoom("Server Room", "Cold air hums between the racks.");
         Room lobby = RoomFactory.createRoom("Lobby", "Security cameras line the ceiling.");
 
-        int guiltyIndex = random.nextInt(3);
         String[] names = {"Mr. Turner", "Ms. Reyes", "Mr. Osei"};
+        int guiltyIndex = pickGuiltyIndex(2, names);
         String culprit = names[guiltyIndex];
 
         boardroom.addEvidence(EvidenceFactory.createEvidence("Spilled Coffee",
@@ -102,8 +113,8 @@ public class GameDataInitializer {
         Room dressingRoom = RoomFactory.createRoom("Dressing Room", "Mirrors surrounded by wilting flowers.");
         Room backstage = RoomFactory.createRoom("Backstage", "Ropes, pulleys, and shadows.");
 
-        int guiltyIndex = random.nextInt(3);
         String[] names = {"Madame Rosa", "Victor Lang", "Elise Moreau"};
+        int guiltyIndex = pickGuiltyIndex(3, names);
         String culprit = names[guiltyIndex];
 
         stage.addEvidence(EvidenceFactory.createEvidence("Torn Script Page",
