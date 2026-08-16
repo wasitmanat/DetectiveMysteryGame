@@ -30,12 +30,19 @@ A Java Swing desktop game built for a university Software Design Pattern (SDP) c
 ## Project Structure
 com.detective/
 ├── gui/ - Swing screens and panels
+
 ├── model/ - Player, Room, Suspect, Evidence
+
 ├── manager/ - GameManager (Singleton)
+
 ├── command/ - Player action commands
+
 ├── factory/ - Object creation factories
+
 ├── state/ - Game state classes
+
 ├── observer/ - Observer interface
+
 └── util/ - Theming, save system, case data, random events
 
 ## How to Run
