@@ -9,7 +9,9 @@ import com.detective.state.GameState;
 import com.detective.state.InvestigatingState;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GameManager {
     private static GameManager instance;
@@ -25,6 +27,8 @@ public class GameManager {
     private GameState currentState = new InvestigatingState();
     private String currentHint;
     private boolean hintUsedThisLevel;
+    private Map<Integer, String> lastCulpritByLevel;
+    private Map<String, Integer> suspicionPoints;
 
     private GameManager() {
         rooms = new ArrayList<>();
@@ -34,6 +38,8 @@ public class GameManager {
         observers = new ArrayList<>();
         gameOver = false;
         currentLevel = 1;
+        lastCulpritByLevel = new HashMap<>();
+        suspicionPoints = new HashMap<>();
     }
 
     public static GameManager getInstance() {
@@ -149,5 +155,26 @@ public class GameManager {
         player.addScore(-15);
         addLog("Used a hint (-15 points)");
         notifyObservers();
+    }
+
+    public String getLastCulprit(int level) {
+        return lastCulpritByLevel.get(level);
+    }
+
+    public void setLastCulprit(int level, String name) {
+        lastCulpritByLevel.put(level, name);
+    }
+
+    public void resetSuspicion() {
+        suspicionPoints.clear();
+    }
+
+    public void addSuspicion(String suspectName, int amount) {
+        suspicionPoints.put(suspectName, suspicionPoints.getOrDefault(suspectName, 0) + amount);
+        notifyObservers();
+    }
+
+    public int getSuspicion(String suspectName) {
+        return suspicionPoints.getOrDefault(suspectName, 0);
     }
 }

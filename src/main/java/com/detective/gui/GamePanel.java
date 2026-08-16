@@ -15,7 +15,9 @@ import com.detective.util.UITheme;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GamePanel extends JPanel implements GameObserver {
     private MainFrame frame;
@@ -32,6 +34,7 @@ public class GamePanel extends JPanel implements GameObserver {
     private int totalEvidenceThisCase;
     private Timer countdownTimer;
     private int secondsRemaining = 180;
+    private Map<String, JProgressBar> suspicionBars = new HashMap<>();
 
     private static final Color[] AVATAR_COLORS = {
             new Color(178, 58, 58), new Color(58, 110, 178), new Color(90, 140, 90),
@@ -276,14 +279,18 @@ public class GamePanel extends JPanel implements GameObserver {
     }
 
     private JPanel buildSuspectCard(Suspect suspect, Color avatarColor) {
-        JPanel card = new JPanel(new BorderLayout(10, 4));
+        JPanel card = new JPanel();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
         card.setBackground(new Color(240, 232, 215));
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(180, 150, 110), 1),
                 new EmptyBorder(8, 8, 8, 8)
         ));
         card.setAlignmentX(Component.LEFT_ALIGNMENT);
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 130));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
+
+        JPanel topRow = new JPanel(new BorderLayout(10, 4));
+        topRow.setOpaque(false);
 
         JComponent avatar = createAvatar(suspect.getName(), avatarColor);
         JPanel avatarWrap = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
@@ -319,8 +326,23 @@ public class GamePanel extends JPanel implements GameObserver {
         textPanel.add(alibi);
         textPanel.add(buttonRow);
 
-        card.add(avatarWrap, BorderLayout.WEST);
-        card.add(textPanel, BorderLayout.CENTER);
+        topRow.add(avatarWrap, BorderLayout.WEST);
+        topRow.add(textPanel, BorderLayout.CENTER);
+
+        JLabel suspicionTitle = new JLabel("Suspicion Level");
+        suspicionTitle.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        suspicionTitle.setForeground(new Color(100, 80, 60));
+        suspicionTitle.setBorder(new EmptyBorder(6, 0, 2, 0));
+
+        JProgressBar suspicionBar = new JProgressBar(0, 100);
+        suspicionBar.setValue(GameManager.getInstance().getSuspicion(suspect.getName()));
+        suspicionBar.setForeground(new Color(178, 34, 34));
+        suspicionBar.setPreferredSize(new Dimension(100, 12));
+        suspicionBars.put(suspect.getName(), suspicionBar);
+
+        card.add(topRow);
+        card.add(suspicionTitle);
+        card.add(suspicionBar);
         return card;
     }
 
@@ -457,6 +479,10 @@ public class GamePanel extends JPanel implements GameObserver {
         if (evidenceProgress != null) {
             evidenceProgress.setValue(collected.size());
             evidenceProgress.setString(collected.size() + " / " + totalEvidenceThisCase + " Found");
+        }
+
+        for (Map.Entry<String, JProgressBar> entry : suspicionBars.entrySet()) {
+            entry.getValue().setValue(GameManager.getInstance().getSuspicion(entry.getKey()));
         }
 
         logArea.setText(String.join("\n", GameManager.getInstance().getInvestigationLog()));

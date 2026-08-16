@@ -12,6 +12,9 @@ public class WinPanel extends JPanel {
         JPanel background = UITheme.gradientPanel(new Color(20, 40, 25), new Color(15, 15, 20));
         background.setLayout(new GridBagLayout());
 
+        int score = com.detective.manager.GameManager.getInstance().getPlayer().getScore();
+        String rank = getRank(score);
+
         String message;
         if (hasNextLevel) {
             message = "<html><center>LEVEL " + levelJustWon + " SOLVED<br><br>"
@@ -19,7 +22,8 @@ public class WinPanel extends JPanel {
                     + "Ready for Level " + (levelJustWon + 1) + "?</center></html>";
         } else {
             message = "<html><center>CASE CLOSED - CAMPAIGN COMPLETE<br><br>"
-                    + culprit + " was the killer.<br>You solved all 3 cases, Detective.</center></html>";
+                    + culprit + " was the killer.<br>You solved all 3 cases, Detective.<br><br>"
+                    + "Final Score: " + score + "<br>Rank: " + rank + "</center></html>";
         }
 
         JLabel label = new JLabel(message, SwingConstants.CENTER);
@@ -47,5 +51,12 @@ public class WinPanel extends JPanel {
 
         background.add(textPanel);
         add(background, BorderLayout.CENTER);
+    }
+
+    private String getRank(int score) {
+        if (score >= 180) return "Master Detective";
+        if (score >= 120) return "Skilled Detective";
+        if (score >= 60) return "Rookie Detective";
+        return "Lucky Guesser";
     }
 }
